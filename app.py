@@ -7,7 +7,8 @@ st.title("💬 What to Text Next")
 st.markdown("Enter a message and get a reply based on the tone you want!")
 
 # Load generator
-generator = pipeline("text-generation", model="gpt2")
+generator = pipeline("text-generation", model="distilgpt2")
+
 
 def generate_reply(user_message, tone):
     if tone == 'positive':
