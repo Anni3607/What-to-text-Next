@@ -1,6 +1,3 @@
-import os
-os.environ["CUDA_VISIBLE_DEVICES"] = ""
-
 import streamlit as st
 from transformers import pipeline
 
@@ -8,19 +5,18 @@ st.set_page_config(page_title="What to Text Next", page_icon="💬")
 st.title("💬 What to Text Next")
 st.markdown("Enter a message and get a reply based on the tone you want!")
 
-# Load GPT-2 generator
-generator = pipeline("text-generation", model="gpt2")
+# ✅ Cached lightweight model
+@st.cache_resource
+def load_model():
+    return pipeline("text2text-generation", model="google/flan-t5-small")
+
+generator = load_model()
 
 def generate_reply(user_message, tone):
-    if tone == 'positive':
-        prompt = f"Reply positively to: '{user_message}'\nResponse:"
-    else:
-        prompt = f"Reply negatively to: '{user_message}'\nResponse:"
-    response = generator(prompt, max_length=60, num_return_sequences=1)
-    reply = response[0]['generated_text'].split("Response:")[-1].strip()
-    return reply
+    prompt = f"Reply {tone} to: {user_message}"
+    output = generator(prompt, max_length=60)
+    return output[0]['generated_text'].strip()
 
-# User input
 user_input = st.text_input("📨 Enter the message you received:")
 tone = st.radio("🎭 Choose tone of your reply:", ['positive', 'negative'])
 
