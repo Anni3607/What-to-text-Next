@@ -1,29 +1,20 @@
 import streamlit as st
 from transformers import pipeline
 
-st.set_page_config(page_title="What to Text Next", page_icon="💬")
-st.title("💬 What to Text Next")
-st.markdown("Enter a message and get a reply based on the tone you want!")
+st.title("📜 What to Text Next?")
 
-# ✅ Cached lightweight model
+# Load text generation pipeline safely
 @st.cache_resource
-def load_model():
-    return pipeline("text2text-generation", model="google/flan-t5-small")
+def load_generator():
+    return pipeline("text-generation", model="gpt2")
 
-generator = load_model()
+generator = load_generator()
 
-def generate_reply(user_message, tone):
-    prompt = f"Reply {tone} to: {user_message}"
-    output = generator(prompt, max_length=60)
-    return output[0]['generated_text'].strip()
+user_input = st.text_input("Enter the topic, idea or context you want to text about:")
 
-user_input = st.text_input("📨 Enter the message you received:")
-tone = st.radio("🎭 Choose tone of your reply:", ['positive', 'negative'])
-
-if st.button("💡 Suggest a Reply"):
+if st.button("Generate Text"):
     if user_input:
-        with st.spinner("Generating..."):
-            reply = generate_reply(user_input, tone)
-        st.success(f"💬 Suggested Reply: {reply}")
+        output = generator(user_input, max_length=50, num_return_sequences=1)[0]['generated_text']
+        st.success(output)
     else:
-        st.warning("Please enter a message.")
+        st.warning("Please enter something!")
